@@ -1,7 +1,7 @@
 "use client";
 import { useChatStore } from "@/store/chat";
 import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Input } from "./Input";
 import { Button } from "./Button";
