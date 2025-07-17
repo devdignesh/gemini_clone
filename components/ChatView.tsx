@@ -6,25 +6,56 @@ import { MessageBubble } from "./MessageBubble";
 import { Button } from "./Button";
 import Image from "next/image";
 
+const MESSAGES_BATCH_SIZE = 10;
+
 export default function ChatView({ chatId }: { chatId: string }) {
   const activeChatroomId = useMessageStore((s) => s.activeChatroomId);
   const allMessages = useMessageStore((s) => s.messages);
   const addMessage = useMessageStore((s) => s.addMessage);
+
   const [input, setInput] = useState("");
-  const bottomRef = useRef<HTMLDivElement>(null);
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const loadMoreMessages = () => {
+    if (!activeChatroomId) return;
+    const all = allMessages[activeChatroomId] || [];
+    const currentlyLoaded = chatMessages.length;
+    const next = all.slice(
+      Math.max(0, all.length - currentlyLoaded - MESSAGES_BATCH_SIZE),
+      all.length - currentlyLoaded
+    );
+
+    if (next.length === 0) {
+      setHasMore(false);
+      return;
+    }
+
+    setChatMessages((prev) => [...next, ...prev]);
+  };
+
 
   useEffect(() => {
-    if (activeChatroomId) {
-      const roomMsgs = allMessages[activeChatroomId] || [];
-      setChatMessages(roomMsgs);
-    }
+    if (!activeChatroomId) return;
+    const all = allMessages[activeChatroomId] || [];
+    const initial = all.slice(-MESSAGES_BATCH_SIZE);
+    setChatMessages(initial);
+    setHasMore(all.length > initial.length);
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   }, [activeChatroomId, allMessages]);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
+  const handleScroll = () => {
+    if (!containerRef.current || !hasMore) return;
+    if (containerRef.current.scrollTop === 0) {
+      loadMoreMessages();
+    }
+  };
 
   const send = () => {
     if (!input.trim() || !activeChatroomId) return;
@@ -64,7 +95,7 @@ export default function ChatView({ chatId }: { chatId: string }) {
 
   return (
     <div className="flex flex-col h-[80vh] p-4 bg-amber-100">
-      <div className="flex-1 overflow-y-auto space-y-2">
+      <div className="flex-1 overflow-y-auto space-y-2" onScroll={handleScroll} ref={containerRef}>
         {chatMessages.map((m) => (
           <MessageBubble key={m.id} message={m} />
         ))}
