@@ -12,8 +12,7 @@ import Header from "./Header";
 
 const MESSAGES_BATCH_SIZE = 15;
 
-export default function ChatView({ chatId }: { chatId: string }) {
-  const activeChatroomId = useMessageStore((s) => s.activeChatroomId);
+export default function ChatView({ chatId }: { chatId: string }) { 
   const allMessages = useMessageStore((s) => s.messages);
   const addMessage = useMessageStore((s) => s.addMessage);
 
@@ -27,8 +26,8 @@ export default function ChatView({ chatId }: { chatId: string }) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const loadMoreMessages = () => {
-    if (!activeChatroomId) return;
-    const all = allMessages[activeChatroomId] || [];
+    if (!chatId) return;
+    const all = allMessages[chatId] || [];
     const currentlyLoaded = chatMessages.length;
     const next = all.slice(
       Math.max(0, all.length - currentlyLoaded - MESSAGES_BATCH_SIZE),
@@ -44,15 +43,15 @@ export default function ChatView({ chatId }: { chatId: string }) {
   };
 
   useEffect(() => {
-    if (!activeChatroomId) return;
-    const all = allMessages[activeChatroomId] || [];
+    if (!chatId) return;
+    const all = allMessages[chatId] || [];
     const initial = all.slice(-MESSAGES_BATCH_SIZE);
     setChatMessages(initial);
     setHasMore(all.length > initial.length);
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
-  }, [activeChatroomId, allMessages]);
+  }, [chatId, allMessages]);
 
   const handleScroll = () => {
     if (!containerRef.current || !hasMore) return;
@@ -73,7 +72,7 @@ export default function ChatView({ chatId }: { chatId: string }) {
     const hasText = input.trim().length > 0;
     const hasImage = !!previewImage;
 
-    if ((!hasText && !hasImage) || !activeChatroomId) return;
+    if ((!hasText && !hasImage) || !chatId) return;
     const now = new Date().toISOString();
     const sender: "user" | "ai" = "user";
     const msg = {
@@ -102,7 +101,7 @@ export default function ChatView({ chatId }: { chatId: string }) {
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !activeChatroomId) return;
+    if (!file || !chatId) return;
 
     const reader = new FileReader();
     reader.onloadend = () => {

@@ -4,7 +4,7 @@ A responsive, AI-style chat app built with **Next.js**, **TailwindCSS**, **Zusta
 
 ## Live Demo
 
-[ Click here to view the live app](https://your-deployed-link.com)  
+[ Click here to view the live app](https://gemini-clone-sage-ten.vercel.app/)  
 
 
 ---
