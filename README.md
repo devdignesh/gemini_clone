@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+#  Gemini Chat App
 
-## Getting Started
+A responsive, AI-style chat app built with **Next.js**, **TailwindCSS**, **Zustand**, and **TypeScript**. This project simulates a Gemini-like conversational interface with key UX and performance features implemented using modern frontend best practices.
 
-First, run the development server:
+## Live Demo
+
+[ Click here to view the live app](https://your-deployed-link.com)  
+
+
+---
+
+## Project Overview
+
+This web app provides a conversational AI chat experience with the following capabilities:
+
+- Chat UI supporting AI + user messages
+- Image message preview and upload
+- Reverse infinite scroll
+- Typing indicator ("Gemini is typing...")
+- Copy-to-clipboard on hover
+- Timestamps per message
+- OTP-based login simulation
+- Smooth UX with "Send on Enter" and "Shift+Enter for newline"
+
+---
+
+## Setup & Run Instructions
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/devdignesh/gemini_clone.git
+cd gemini_clone
+```
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Run the development server**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+4. Open http://localhost:3000
+
+## Folder & Component Structure
+
+```bash
+├── app/
+|   ├── (chat)
+|   |    ├── chatroom/[id]/page.tsx  # Chatroom
+|   |    ├── page.tsx                # Landing / chat entry point      
+│   └── login/page.tsx          # Login page
+|   ├── layout.tsx                # Main layout     
+│
+├── components/
+│   ├── ChatView.tsx              # Message input with send + preview
+│   ├── Header.tsx              # Header
+│   ├── MessageBubble.tsx         # Single message renderer
+│   ├── ModeToggle.tsx           # Change theme mode
+│   ├── Sidebar.tsx              # List of chatroom
+│
+├── store/
+│   ├── auth.ts                 # Zustand auth state
+│   ├── chat.ts                 # Zustand chatroom state (room list / create / delete)
+│   └── message.ts              # Zustand chat messages per room
+│
+├── hooks/
+│   ├── useDebounce.ts          # Get a debounce value
+│   └── useCountries.ts         # Country dial code data hook
+│
+├── lib/
+│   ├── generateFakeReply.ts    # Return fake reply
+│   ├── getCountries.ts         # Get countries
+│   ├── groupByDate.ts          # Function for create a group by date
+│   └── utils.ts                # Helpers (e.g., message simulation)
+│
+├── types/
+│   └── index.ts                # TypeScript interfaces
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Feature Implementation Details
+### 1. Form Validation
+- Implemented with react-hook-form and zod
+- Phone number & OTP forms validated with clear error messages
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. Reverse Infinite Scroll
+- Chat messages render newest at the bottom
+- ref attached to top sentinel for pagination
+- On scroll to top, older messages load and append above
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Throttling (Send on Enter)
+- Enter key triggers send() function
+- Shift+Enter allows newline
+- Prevents multiple quick submissions with a lock & timeout
 
-## Learn More
+### 4. Pagination
+- Simulated using batched loading in reverse scroll
+- Messages are sliced and loaded incrementally
+- In real apps, this would connect to backend APIs
 
-To learn more about Next.js, take a look at the following resources:
+## Contact
+Feel free to reach out with any questions!
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
