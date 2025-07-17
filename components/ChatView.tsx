@@ -148,11 +148,18 @@ export default function ChatView({ chatId }: { chatId: string }) {
           onChange={handleImage}
           className="border p-2 rounded"
         />
-        <input
+        <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              send();
+            }
+          }}
           placeholder="Type a message"
           className="border p-2 rounded w-full"
+          rows={1}
         />
         <Button onClick={send}>Send</Button>
       </div>
