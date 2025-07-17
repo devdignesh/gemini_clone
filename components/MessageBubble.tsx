@@ -3,10 +3,12 @@ import { ClipboardCopy } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { format } from "date-fns";
 
 export function MessageBubble({ message }: { message: Message }) {
   const isUser = message.sender === "user";
   const [copied, setCopied] = useState(false);
+  const time = format(new Date(message.createdAt), "p");
 
   const handleCopy = () => {
     navigator.clipboard.writeText(message.text || "").then(() => {
@@ -42,9 +44,7 @@ export function MessageBubble({ message }: { message: Message }) {
             <ClipboardCopy size={16} />
           </button>
         )}
-        <div className="text-[10px] mt-1 text-right opacity-50">
-          {new Date(message.createdAt).toLocaleTimeString()}
-        </div>
+        <p className="text-[10px] text-right text-gray-500 mt-1">{time}</p>
       </div>
     </div>
   );

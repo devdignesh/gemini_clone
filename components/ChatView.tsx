@@ -5,6 +5,7 @@ import { generateFakeReply } from "@/lib/generateFakeReply";
 import { MessageBubble } from "./MessageBubble";
 import { Button } from "./Button";
 import Image from "next/image";
+import { groupByDate } from "@/lib/groupByDate";
 
 const MESSAGES_BATCH_SIZE = 10;
 
@@ -37,7 +38,6 @@ export default function ChatView({ chatId }: { chatId: string }) {
 
     setChatMessages((prev) => [...next, ...prev]);
   };
-
 
   useEffect(() => {
     if (!activeChatroomId) return;
@@ -93,11 +93,24 @@ export default function ChatView({ chatId }: { chatId: string }) {
     reader.readAsDataURL(file);
   };
 
+  const groupedMessages = groupByDate(chatMessages);
+
   return (
     <div className="flex flex-col h-[80vh] p-4 bg-amber-100">
-      <div className="flex-1 overflow-y-auto space-y-2" onScroll={handleScroll} ref={containerRef}>
-        {chatMessages.map((m) => (
-          <MessageBubble key={m.id} message={m} />
+      <div
+        className="flex-1 overflow-y-auto space-y-2"
+        onScroll={handleScroll}
+        ref={containerRef}
+      >
+        {Object.entries(groupedMessages).map(([dateLabel, msgs]) => (
+          <div key={dateLabel}>
+            <div className="text-center text-xs text-gray-500 my-2">
+              {dateLabel}
+            </div>
+            {msgs.map((m) => (
+              <MessageBubble key={m.id} message={m} />
+            ))}
+          </div>
         ))}
         <div ref={bottomRef} />
       </div>
