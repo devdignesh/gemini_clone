@@ -19,32 +19,51 @@ export function MessageBubble({ message }: { message: Message }) {
   };
 
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div
-        className={`p-3 rounded-lg max-w-xs text-sm shadow relative group ${
-          isUser ? "bg-blue-500 text-white" : "bg-gray-200 text-black"
-        }`}
-      >
-        {message.image && (
-          <Image
-            src={message.image}
-            alt="uploaded"
-            height={50}
-            width={50}
-            className="rounded mb-2 max-w-full h-auto"
-          />
-        )}
-        {message.text && <p>{message.text}</p>}
-        {message.text && (
-          <button
-            onClick={handleCopy}
-            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-gray-600 border border-amber-200 hover:text-black"
-            title={copied ? "Copied!" : "Copy"}
-          >
-            <ClipboardCopy size={16} />
-          </button>
-        )}
-        <p className="text-[10px] text-right text-gray-500 mt-1">{time}</p>
+    <div
+      className={`flex w-full ${isUser ? "justify-end" : "justify-start"} mb-1`}
+    >
+      <div>
+        <div
+          className={`relative group px-4 py-2 transition-all
+          ${
+            isUser
+              ? "bg-gray-300/50 rounded-b-4xl rounded-tl-4xl"
+              : "bg-white text-gray-900 border border-gray-200 rounded-3xl"
+          }
+          max-w-[80vw] sm:max-w-md break-words flex flex-col`}
+        >
+          {message.image && (
+            <Image
+              src={message.image}
+              alt="uploaded"
+              height={180}
+              width={180}
+              className="rounded-lg border mb-2 max-w-[200px] max-h-48 object-cover shadow-sm"
+            />
+          )}
+          {message.text && (
+            <p className="whitespace-pre-line text-base leading-relaxed">
+              {message.text}
+            </p>
+          )}
+          {message.text && (
+            <button
+              onClick={handleCopy}
+              className={`absolute top-2 right-2 p-1 rounded-full bg-white/80 border border-gray-200 shadow hover:bg-blue-100 focus:bg-blue-100 focus:outline-none transition-opacity
+              ${isUser ? "text-blue-700" : "text-gray-600"}
+              opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100`}
+              title={copied ? "Copied!" : "Copy"}
+              aria-label="Copy message"
+              tabIndex={0}
+            >
+              <ClipboardCopy size={18} />
+              <span className="sr-only">Copy</span>
+            </button>
+          )}
+        </div>
+        <span className={`text-[11px] mt-2  ${isUser ? "text-right pr-3" : "text-left pl-3"} block select-none `}>
+          {time}
+        </span>
       </div>
     </div>
   );

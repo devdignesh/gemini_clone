@@ -1,57 +1,156 @@
 "use client";
-import { useForm } from "react-hook-form"; 
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useCountries } from "@/hooks/useCountries";
 import { useAuthStore } from "@/store/auth";
-import { useRouter } from "next/navigation"; 
-import { Input } from "@/components/Input";
-import { Button } from "@/components/Button";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Country } from "@/types";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Controller } from "react-hook-form";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 const phoneSchema = z.object({
   countryCode: z.string().min(1, "Select code"),
-  phone: z.string().min(5, "Invalid number"),
+  phone: z.string().min(10, "Invalid number"),
 });
 
-type FormValues = z.infer<typeof phoneSchema>;
+const otpSchema = z.object({
+  otp: z.string().min(6, "Enter valid OTP"),
+});
+
+type PhoneFormValues = z.infer<typeof phoneSchema>;
+type OTPFormValues = z.infer<typeof otpSchema>;
 
 export default function LoginPage() {
   const countries = useCountries();
   const setPhone = useAuthStore((s) => s.setPhone);
+  const setAuth = useAuthStore((s) => s.setAuth);
   const router = useRouter();
+  const [sendOTP, setSendOTP] = useState(false);
 
   const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(phoneSchema) });
+    register: registerPhone,
+    handleSubmit: handlePhoneSubmit,
+    formState: { errors: phoneErrors },
+    control,
+  } = useForm<PhoneFormValues>({ resolver: zodResolver(phoneSchema) });
 
-  const onSubmit = (data: FormValues) => {
+  const onPhoneSubmit = (data: PhoneFormValues) => {
     setPhone(data.countryCode + data.phone);
-    router.push("/login/verify");
+    setSendOTP(true);
+    toast.success("OTP sent!");
+  };
+
+  const {
+    register: registerOTP,
+    handleSubmit: handleOTPSubmit,
+    formState: { errors: otpErrors },
+  } = useForm<OTPFormValues>({ resolver: zodResolver(otpSchema) });
+
+  const onOTPSubmit = () => {
+    setTimeout(() => {
+      setAuth(true);
+      toast.success("Logged in!");
+      router.push("/");
+    }, 1000);
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="max-w-md mx-auto p-4 space-y-4"
-    >
-      <select
-        {...register("countryCode")}
-        className="w-full border p-2 rounded"
-      >
-        <option value="">Select Country Code</option>
-        {countries.map((c: any) => (
-          <option key={c.code} value={c.dialCode}>
-            {c.flag} {c.name} ({c.dialCode})
-          </option>
-        ))}
-      </select>
-      <Input label="Phone Number" {...register("phone")} />
-      {errors.phone && (
-        <p className="text-red-500 text-sm">{errors.phone.message}</p>
-      )}
-      <Button type="submit">Send OTP</Button>
-    </form>
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Login to your account</CardTitle>
+        <CardDescription>
+          {sendOTP
+            ? "Enter the OTP sent to your number"
+            : "Enter your number below to login"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {!sendOTP ? (
+          <form onSubmit={handlePhoneSubmit(onPhoneSubmit)}>
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Country Code</Label>
+                <Controller
+                  control={control}
+                  name="countryCode"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="min-w-full">
+                        <SelectValue placeholder="Country Code" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map((c: Country) => (
+                          <SelectItem
+                            value={`${c.code}`}
+                            key={`${c.dialCode}-${c.name}`}
+                          >
+                            {c.flag} ({c.dialCode})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Number</Label>
+                <Input
+                  type="number"
+                  {...registerPhone("phone")}
+                  placeholder="Enter number"
+                />
+                {phoneErrors.phone && (
+                  <p className="text-red-500 text-sm">
+                    {phoneErrors.phone.message}
+                  </p>
+                )}
+              </div>
+              <Button type="submit" className="w-full">
+                Send OTP
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleOTPSubmit(onOTPSubmit)}>
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Input
+                  type="text"
+                  placeholder="Enter OTP"
+                  {...registerOTP("otp")}
+                />
+                {otpErrors.otp && (
+                  <p className="text-sm text-red-500">
+                    {otpErrors.otp.message}
+                  </p>
+                )}
+              </div>
+              <div className="grid gap-2">
+                <Button type="submit">Verify OTP</Button>
+              </div>
+            </div>
+          </form>
+        )}
+      </CardContent>
+    </Card>
   );
 }
