@@ -18,6 +18,7 @@ export default function ChatView({ chatId }: { chatId: string }) {
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -70,6 +71,7 @@ export default function ChatView({ chatId }: { chatId: string }) {
     addMessage(chatId, msg);
     setInput("");
     setPreviewImage(null);
+    setIsTyping(true);
 
     setTimeout(() => {
       const reply = generateFakeReply();
@@ -79,6 +81,7 @@ export default function ChatView({ chatId }: { chatId: string }) {
         text: reply,
         createdAt: new Date().toISOString(),
       });
+      setIsTyping(false);
     }, 1500);
   };
 
@@ -112,6 +115,11 @@ export default function ChatView({ chatId }: { chatId: string }) {
             ))}
           </div>
         ))}
+        {isTyping && (
+          <div className="text-sm text-gray-500 italic mb-2">
+            Gemini is typing...
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
 
